@@ -1,6 +1,7 @@
 
 #pragma once
 #include<initializer_list>
+#include<iostream>
 #include<math.h>
 
 template<typename T, int n, int m>
@@ -11,7 +12,7 @@ public:
 	matrix() {
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				Q[i][j] = (i == j);
+				Q[i][j] = 0;
 			}
 		}
 	}
@@ -28,7 +29,7 @@ public:
 		}
 	}
 
-	matrix<T, n, m> operator+(const matrix<T, n, m>& other) {
+	matrix<T, n, m> operator+(const matrix<T, n, m>& other) const{
 		matrix<T, n, m> tmp;
 
 		for (int i = 0; i < n; i++) {
@@ -39,7 +40,11 @@ public:
 		return tmp;
 	}
 
-	matrix<T, n, m> operator*(int a) {
+	matrix<T, n, m> operator-(const matrix<T, n, m>& other) const{
+		return (*this) + other*(static_cast<T>(-1));
+	}
+
+	matrix<T, n, m> operator*(T a) const{
 		matrix<T, n, m> tmp;
 
 		for (int i = 0; i < n; i++) {
@@ -51,7 +56,7 @@ public:
 	}
 
 	template<int ot_m>
-	matrix<T, n, ot_m> operator*(const matrix<T, m, ot_m>& other) {
+	matrix<T, n, ot_m> operator*(const matrix<T, m, ot_m>& other) const{
 		matrix<T, n, ot_m> tmp;
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < ot_m; j++) {
@@ -64,6 +69,39 @@ public:
 			}
 		}
 		return tmp;
+	}
+
+	//assumes the matrix is either a row vector or a column vector
+	double magnitude_squared() const{
+		assert(n == 1 || m == 1);
+		double r = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				r += this->get(i,j) * this->get(i,j);
+			}
+		}
+		return r;
+	}
+
+	matrix<T, m, n> transpose(){
+		matrix<T, m, n> res;
+		for(int i = 0; i < n; i++){
+			for(int j = 0; j < m; j++){
+				res.set(j, i, this->get(i,j));
+			}
+		}
+		return res;
+	}
+
+	matrix<T, n, m> hadamard_product(const matrix<T, n, m>& other){
+		assert(n == 1 || m == 1);
+		matrix<T, n, m> res;
+		for(int i = 0; i < n; i++){
+			for(int j = 0; j < m; j++){
+				res.set(i,j, this->get(i,j)*other.get(i,j));
+			}
+		}
+		return res;
 	}
 
 	void print_out() {
